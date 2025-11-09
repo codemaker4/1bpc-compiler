@@ -1,0 +1,15 @@
+; spin loop with debug A address sets
+loop: ; this is a label comment
+aa %10000000 ; mark loop start
+ji 15
+aa %01000000 ; error jump didn't work
+h
+
+jumptest:
+jt :end
+aa %00100000 ; flash that no trigger happened
+ji :loop
+
+end:
+aa %00010000 ; stopped after trigger
+h
