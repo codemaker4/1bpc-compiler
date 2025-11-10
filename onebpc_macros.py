@@ -163,22 +163,29 @@ def at_math(tokens: list[Token], context: dict) -> list[Token]:
                      (", " if labref_token.note else "") +
                      "from 'at <math>' macro")
 
-    if len(labref_tokens) in [2, 3]:
-        return_tokens.append(Token(TokenType.CMD, "set_a",
-                                   tokens[0].line_nr,
-                                   "set_a"))
-        return_tokens.append(make_at_token(labref_tokens[0]))
-        # Line numbers must be consecutive
-        labref_tokens[0].line_nr = tokens[0].line_nr
-        return_tokens.append(labref_tokens[0])
-        return_tokens.append(Token(TokenType.CMD, "set_b",
-                                   tokens[0].line_nr,
-                                   "set_b"))
-        return_tokens.append(make_at_token(labref_tokens[1]))
-        # Line numbers must be consecutive
-        labref_tokens[1].line_nr = tokens[0].line_nr
-        return_tokens.append(labref_tokens[1])
-    if len(labref_tokens) in [1, 3]:
+    math_operation = math_token.value.lower()
+
+    # Some operations have only one source operand
+    if math_operation in ["move_data", "md",
+                          "invert", "bi",
+                          "checksum", "bc"]:
+        if len(labref_tokens) > 2:
+            src_text = " ".join(t.src_text for t in tokens)
+            return [Token(TokenType.ERR,
+                          f"Too many operands for '{math_operation}' "
+                          f"in 'at <math>' macro. This operation only "
+                          f"takes one input, so either give the source and "
+                          f"destination label, or only the destination label.",
+                          tokens[0].line_nr,
+                          src_text)]
+        if len(labref_tokens) == 2:
+            return_tokens.append(Token(TokenType.CMD, "set_a",
+                                       tokens[0].line_nr,
+                                       "set_a"))
+            return_tokens.append(make_at_token(labref_tokens[0]))
+            # Line numbers must be consecutive
+            labref_tokens[0].line_nr = tokens[0].line_nr
+            return_tokens.append(labref_tokens[0])
         return_tokens.append(Token(TokenType.CMD, "set_c",
                                    tokens[0].line_nr,
                                    "set_c"))
@@ -186,6 +193,45 @@ def at_math(tokens: list[Token], context: dict) -> list[Token]:
         # Line numbers must be consecutive
         labref_tokens[-1].line_nr = tokens[0].line_nr
         return_tokens.append(labref_tokens[-1])
+    elif math_operation in ["add", "+",
+                            "subtract", "-",
+                            "and", "ba",
+                            "or", "bo",
+                            "xor", "bx",
+                            "nand", "bna",
+                            "nor", "bno",
+                            "nxor", "bnx"]:
+        # Operations that have two source operands
+        if len(labref_tokens) in [2, 3]:
+            return_tokens.append(Token(TokenType.CMD, "set_a",
+                                       tokens[0].line_nr,
+                                       "set_a"))
+            return_tokens.append(make_at_token(labref_tokens[0]))
+            # Line numbers must be consecutive
+            labref_tokens[0].line_nr = tokens[0].line_nr
+            return_tokens.append(labref_tokens[0])
+            return_tokens.append(Token(TokenType.CMD, "set_b",
+                                       tokens[0].line_nr,
+                                       "set_b"))
+            return_tokens.append(make_at_token(labref_tokens[1]))
+            # Line numbers must be consecutive
+            labref_tokens[1].line_nr = tokens[0].line_nr
+            return_tokens.append(labref_tokens[1])
+        if len(labref_tokens) in [1, 3]:
+            return_tokens.append(Token(TokenType.CMD, "set_c",
+                                       tokens[0].line_nr,
+                                       "set_c"))
+            return_tokens.append(make_at_token(labref_tokens[-1]))
+            # Line numbers must be consecutive
+            labref_tokens[-1].line_nr = tokens[0].line_nr
+            return_tokens.append(labref_tokens[-1])
+    else:
+        src_text = " ".join(t.src_text for t in tokens)
+        return [Token(TokenType.ERR,
+                      f"Unknown math operation '{math_operation}' "
+                      f"in 'at <math>' macro.",
+                      math_token.line_nr,
+                      src_text)]
 
     if operation_length > 15:
         operation_length_token.note = (
