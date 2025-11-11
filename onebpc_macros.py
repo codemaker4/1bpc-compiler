@@ -270,8 +270,6 @@ def at_math(tokens: list[Token], context: dict) -> list[Token]:
     return_tokens.append(math_token)
     return_tokens.append(operation_length_token)
 
-    print("DEBUG: at_math returning tokens:", return_tokens)
-
     return return_tokens
 
 
