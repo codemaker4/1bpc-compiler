@@ -165,10 +165,27 @@ def at_math(tokens: list[Token], context: dict) -> list[Token]:
 
     math_operation = math_token.value.lower()
 
-    # Some operations have only one source operand
-    if math_operation in ["move_data", "md",
-                          "invert", "bi",
-                          "checksum", "bc"]:
+    # Some operations only have a source operand and no destination operand
+    if math_operation in ["checksum", "bc"]:
+        if len(labref_tokens) != 1:
+            src_text = " ".join(t.src_text for t in tokens)
+            return [Token(TokenType.ERR,
+                          f"Incorrect number of operands for "
+                          f"'{math_operation}' in 'at <math>' macro. This "
+                          f"operation only takes one input, so provide "
+                          f"only the source label.",
+                          tokens[0].line_nr,
+                          src_text)]
+        return_tokens.append(Token(TokenType.CMD, "set_a",
+                                   tokens[0].line_nr,
+                                   "set_a"))
+        return_tokens.append(make_at_token(labref_tokens[0]))
+        # Line numbers must be consecutive
+        labref_tokens[0].line_nr = tokens[0].line_nr
+        return_tokens.append(labref_tokens[0])
+    # Some operations have only one source operand and a destination operand
+    elif math_operation in ["move_data", "md",
+                            "invert", "bi"]:
         if len(labref_tokens) > 2:
             src_text = " ".join(t.src_text for t in tokens)
             return [Token(TokenType.ERR,
@@ -193,6 +210,7 @@ def at_math(tokens: list[Token], context: dict) -> list[Token]:
         # Line numbers must be consecutive
         labref_tokens[-1].line_nr = tokens[0].line_nr
         return_tokens.append(labref_tokens[-1])
+    # Operations that have two source operands and a destination operand
     elif math_operation in ["add", "+",
                             "subtract", "-",
                             "and", "ba",
@@ -201,7 +219,6 @@ def at_math(tokens: list[Token], context: dict) -> list[Token]:
                             "nand", "bna",
                             "nor", "bno",
                             "nxor", "bnx"]:
-        # Operations that have two source operands
         if len(labref_tokens) in [2, 3]:
             return_tokens.append(Token(TokenType.CMD, "set_a",
                                        tokens[0].line_nr,
