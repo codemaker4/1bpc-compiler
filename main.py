@@ -44,7 +44,7 @@ def word_wrap(text: str, width: int, indent: int = 0) -> str:
 def get_output(memory_map: Memory_Map,
                show_labels: bool = False,
                note_level: NoteType | None = None,
-               spread_notes_over_multiple_lines: bool = False,
+               spread_notes: bool = False,
                word_wrap_limit: int | None = None,
                add_address_numbers: bool = False,
                show_token_src: bool = False,
@@ -75,7 +75,7 @@ def get_output(memory_map: Memory_Map,
         # on their own lines, above the line containing the binary output for
         # the current address.
         skipped_notes = []
-        if spread_notes_over_multiple_lines and note_level is not None:
+        if spread_notes and note_level is not None:
             current_line_number = tokens[0].line_nr
             for note in memory_map.notes:
                 note_address, line_nr, note_type, note_text = note
@@ -96,7 +96,7 @@ def get_output(memory_map: Memory_Map,
                 if note_type.value > note_level.value:
                     continue
                 # Skip notes that were already added above.
-                if spread_notes_over_multiple_lines and \
+                if spread_notes and \
                         line_nr < tokens[0].line_nr:
                     continue
                 notes.append((line_nr, note_type, note_text))
@@ -131,7 +131,7 @@ def get_output(memory_map: Memory_Map,
 
         # If we are not spreading the notes and labels over multiple lines,
         # the process is simple: just append them to the line.
-        if not spread_notes_over_multiple_lines:
+        if not spread_notes:
             if labels or show_token_src or note_texts:
                 line += ' '
             if labels:
@@ -229,8 +229,6 @@ def print_notes(memory_map: Memory_Map,
 if __name__ == "__main__":
     import argparse
 
-    start_time = time.time()
-
     parser = argparse.ArgumentParser(
         description=("Compile 1bpc assembly source code into binary memory "
                      "map.\n"
@@ -255,7 +253,7 @@ if __name__ == "__main__":
         help="Minimum note level to display."
     )
     parser.add_argument(
-        "--spread-notes-over-multiple-lines",
+        "--spread-notes",
         action="store_true",
         help="Allow notes to be spread over multiple lines."
     )
@@ -284,6 +282,11 @@ if __name__ == "__main__":
         action="store_true",
         help="Use '#' for 1s and '-' for 0s in the binary output."
     )
+    parser.add_argument(
+        "--auto-recompile",
+        action="store_true",
+        help="Automatically recompile on source file changes."
+    )
     args = parser.parse_args()
 
     note_level: NoteType | None = None
@@ -305,46 +308,70 @@ if __name__ == "__main__":
         exit(1)
 
     if args.word_wrap_limit is not None:
-        args.spread_notes_over_multiple_lines = True
+        args.spread_notes = True
 
-    print(f"Reading {args.source_file}...")
+    def compile_and_output():
+        start_time = time.time()
 
-    with open(args.source_file, 'r') as f:
-        source_code = f.read()
+        print(f"Reading {args.source_file}...")
 
-    print("Compiling source code...")
+        with open(args.source_file, 'r') as f:
+            source_code = f.read()
 
-    memory_map = compile_source(source_code)
+        print("Compiling source code...")
 
-    print("Generating output...")
+        memory_map = compile_source(source_code)
 
-    output = get_output(
-        memory_map,
-        show_labels=args.show_labels,
-        note_level=note_level,
-        spread_notes_over_multiple_lines=args.spread_notes_over_multiple_lines,
-        word_wrap_limit=args.word_wrap_limit,
-        add_address_numbers=args.add_address_numbers,
-        show_token_src=args.show_token_src,
-        add_token_notes=args.add_token_notes,
-        use_hashtags=args.use_hashtags
-    )
+        print("Generating output...")
 
-    if args.output_file:
-        output_file = args.output_file
-    else:
-        output_file = re.sub(r'\.(.*)$',
-                             lambda m: '_out.' + m.group(1),
-                             args.source_file)
+        output = get_output(
+            memory_map,
+            show_labels=args.show_labels,
+            note_level=note_level,
+            spread_notes=args.spread_notes,
+            word_wrap_limit=args.word_wrap_limit,
+            add_address_numbers=args.add_address_numbers,
+            show_token_src=args.show_token_src,
+            add_token_notes=args.add_token_notes,
+            use_hashtags=args.use_hashtags
+        )
 
-    print(f"Writing output to {output_file}...")
+        if args.output_file:
+            output_file = args.output_file
+        else:
+            output_file = re.sub(r'\.(.*)$',
+                                 lambda m: '_out.' + m.group(1),
+                                 args.source_file)
 
-    with open(output_file, 'w') as f:
-        f.write(output)
+        print(f"Writing output to {output_file}...")
 
-    print("Done.")
+        with open(output_file, 'w') as f:
+            f.write(output)
 
-    print("")
+        print("Done.")
 
-    print_notes(memory_map, note_level, args.word_wrap_limit)
-    print(f"Finished in {time.time() - start_time:.4f} seconds.")
+        print("")
+
+        print_notes(memory_map, note_level, args.word_wrap_limit)
+        print(f"Finished in {time.time() - start_time:.4f} seconds.")
+
+    compile_and_output()
+
+    if not args.auto_recompile:
+        exit(0)
+
+    import os
+
+    last_mtime = os.path.getmtime(args.source_file)
+    print("Watching for changes...")
+    try:
+        while True:
+            time.sleep(.1)
+            current_mtime = os.path.getmtime(args.source_file)
+            if current_mtime != last_mtime:
+                print("\nSource file changed, recompiling...\n")
+                compile_and_output()
+                last_mtime = current_mtime
+                print("Watching for changes...")
+    except KeyboardInterrupt:
+        print("\nExiting.")

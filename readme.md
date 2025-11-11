@@ -16,14 +16,15 @@ format the extra info in a computer-readable format
 `python main.py --show-labels --note-level info --add-address-numbers --show-token-src --add-token-notes source.txt output.txt`
 
 ## options
-- `--show-labels`: show labels in the output memory map. If `--spread-notes-over-multiple-lines` or `--word-wrap-limit` is used, labels will be put on a seperate line before the instruction at that address. Otherwise, they will be put on the same line after the binary code.
+- `--show-labels`: show labels in the output memory map. If `--spread-notes` or `--word-wrap-limit` is used, labels will be put on a seperate line before the instruction at that address. Otherwise, they will be put on the same line after the binary code.
 - `--note-level [error|warning|comment|info]`: minimum note level to both in the output file and in the terminal. If this is not specified, it will not put any notes in the output file, and only errors and warnings will be printed to the terminal.
-- `--spread-notes-over-multiple-lines`: put notes on seperate lines below the instruction they refer to, instead of at the end of the line. This makes the output file longer, but easier to read. Omitting this is recommended for if you want a different program to parse the output file. This option is automatically enabled if `--word-wrap-limit` is used.
-- `--word-wrap-limit [number]`: wrap lines with notes that exceed this length. Only applies if (token) notes are being shown. If this option is used, `--spread-notes-over-multiple-lines` is automatically enabled.
+- `--spread-notes`: put notes on seperate lines below the instruction they refer to, instead of at the end of the line. This makes the output file longer, but easier to read. Omitting this is recommended for if you want a different program to parse the output file. This option is automatically enabled if `--word-wrap-limit` is used.
+- `--word-wrap-limit [number]`: wrap lines with notes that exceed this length. Only applies if (token) notes are being shown. If this option is used, `--spread-notes` is automatically enabled.
 - `--add-address-numbers`: add the memory address at the start of each line in the output file.
 - `--show-token-src`: show the original source code of each token (piece of source code) in the output file. This is useful for understanding what each binary word was generated from. When used together with `--show-labels`, labels will be shown before the instruction at that address, causing all the active source code to be visible in the output file.
 - `--add-token-notes`: show notes attached to tokens in the output file. This is useful for understanding why certain errors or warnings were generated. Note that this won't do anything without `--note-level info`. Token notes are currently only generated when decimal and hexadecimal numbers are converted to binary tokens in preparation for compiling.
 - `--use-hashtags`: use `#` for 1s and `-` for 0s in the binary output, instead of `1` and `0`. This makes the binary code easier to read for humans.
+- `--auto-recompile`: automatically recompile the source file whenever it is changed. Note that this will not terminate on its own, you have to manually stop the program (e.g. with Ctrl+C).
 
 # How it works
 - First, main.py interperets your command arguments and reads the source file.
