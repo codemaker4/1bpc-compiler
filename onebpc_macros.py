@@ -83,7 +83,7 @@ def malloc(tokens: list[Token], context: dict) -> list[Token]:
          "size": size}
     context["mallocs"]["next_address"] = new_next_address
 
-    if new_next_address >= 256 - 16:
+    if new_next_address - 1 >= 256 - 16:
         src_text = " ".join(t.src_text for t in tokens)
         return [Token(TokenType.ERR,
                       f"Not enough memory to allocate {size} bytes "
