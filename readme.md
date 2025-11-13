@@ -13,7 +13,7 @@ add lots nicely formatted debug info to the output file
 
 automatically recompile when the source file changes, and keep all the notes for each address on the same line
 
-`python main.py --show-labels --note-level info --add-address-numbers --show-token-src --add-token-notes --auto-recompile source.txt output.txt`
+`python main.py --show-labels --note-level info --add-address-numbers --show-token-src --add-token-notes --use-hashtags --auto-recompile source.txt output.txt`
 
 format the extra info in a computer-readable format
 
