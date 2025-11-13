@@ -3,7 +3,6 @@
 from tokenizer import tokenize, convert_numbers_to_binary
 from memory_map import Memory_Map, NoteType
 from preprocessor import preprocess_tokens
-import re
 import time
 
 
@@ -339,9 +338,7 @@ if __name__ == "__main__":
         if args.output_file:
             output_file = args.output_file
         else:
-            output_file = re.sub(r'\.(.*)$',
-                                 lambda m: '_out.' + m.group(1),
-                                 args.source_file)
+            output_file = "compiled.txt"
 
         print(f"Writing output to {output_file}...")
 

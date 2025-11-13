@@ -19,6 +19,11 @@ format the extra info in a computer-readable format
 
 `python main.py --show-labels --note-level info --add-address-numbers --show-token-src --add-token-notes source.txt output.txt`
 
+## arguments
+
+- `source.txt`: path to the source file to compile.
+- `output.txt`: path to the output file to write the memory map to. If not specified, defaults to `compiled.txt`.
+
 ## options
 - `--show-labels`: show labels in the output memory map. If `--spread-notes` or `--word-wrap-limit` is used, labels will be put on a seperate line before the instruction at that address. Otherwise, they will be put on the same line after the binary code.
 - `--note-level [error|warning|comment|info]`: minimum note level to both in the output file and in the terminal. If this is not specified, it will not put any notes in the output file, and only errors and warnings will be printed to the terminal.
