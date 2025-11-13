@@ -11,6 +11,10 @@ add lots nicely formatted debug info to the output file
 
 `python main.py --show-labels --note-level info --word-wrap-limit 80 --add-address-numbers --show-token-src --add-token-notes --use-hashtags source.txt output.txt`
 
+automatically recompile when the source file changes, and keep all the notes for each address on the same line
+
+`python main.py --show-labels --note-level info --add-address-numbers --show-token-src --add-token-notes --auto-recompile source.txt output.txt`
+
 format the extra info in a computer-readable format
 
 `python main.py --show-labels --note-level info --add-address-numbers --show-token-src --add-token-notes source.txt output.txt`
