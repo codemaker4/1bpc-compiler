@@ -27,7 +27,7 @@ INSTRUCTIONS: list[Instruction] = [
     Instruction("000111", ["nand", "bna"], [TokenType.BIN]),
     Instruction("001000", ["nor", "bno"], [TokenType.BIN]),
     Instruction("001001", ["nxor", "bnx"], [TokenType.BIN]),
-    Instruction("001010", ["invert", "bi"], [TokenType.BIN]),
+    Instruction("001010", ["any", "by"], [TokenType.BIN]),
     Instruction("001011", ["checksum", "bc"], [TokenType.BIN]),
     Instruction("001100", ["increment_a", "ia"], [TokenType.BIN]),
     Instruction("001101", ["increment_b", "ib"], [TokenType.BIN]),

@@ -166,7 +166,8 @@ def at_math(tokens: list[Token], context: dict) -> list[Token]:
     math_operation = math_token.value.lower()
 
     # Some operations only have a source operand and no destination operand
-    if math_operation in ["checksum", "bc"]:
+    if math_operation in ["checksum", "bc",
+                          "any", "by"]:
         if len(labref_tokens) != 1:
             src_text = " ".join(t.src_text for t in tokens)
             return [Token(TokenType.ERR,
@@ -184,8 +185,7 @@ def at_math(tokens: list[Token], context: dict) -> list[Token]:
         labref_tokens[0].line_nr = tokens[0].line_nr
         return_tokens.append(labref_tokens[0])
     # Some operations have only one source operand and a destination operand
-    elif math_operation in ["move_data", "md",
-                            "invert", "bi"]:
+    elif math_operation in ["move_data", "md"]:
         if len(labref_tokens) > 2:
             src_text = " ".join(t.src_text for t in tokens)
             return [Token(TokenType.ERR,
