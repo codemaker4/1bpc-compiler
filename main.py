@@ -3,6 +3,7 @@
 from tokenizer import tokenize, convert_numbers_to_binary
 from memory_map import Memory_Map, NoteType
 from preprocessor import preprocess_tokens
+from export import export_memory_map
 import time
 
 
@@ -286,6 +287,12 @@ if __name__ == "__main__":
         action="store_true",
         help="Automatically recompile on source file changes."
     )
+    parser.add_argument(
+        "--export-mtech",
+        action="store_true",
+        help="Export the compiled memory map to the MTech workshop data.json "
+        "file."
+    )
     args = parser.parse_args()
 
     note_level: NoteType | None = None
@@ -344,6 +351,10 @@ if __name__ == "__main__":
 
         with open(output_file, 'w') as f:
             f.write(output)
+
+        if args.export_mtech:
+            print("Exporting memory map to MTech data.json...")
+            export_memory_map(memory_map)
 
         print("Done.")
 

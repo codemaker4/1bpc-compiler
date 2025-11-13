@@ -11,9 +11,9 @@ add lots nicely formatted debug info to the output file
 
 `python main.py --show-labels --note-level info --word-wrap-limit 80 --add-address-numbers --show-token-src --add-token-notes --use-hashtags source.txt output.txt`
 
-automatically recompile when the source file changes, and keep all the notes for each address on the same line
+automatically recompile and export to MTech when the source file changes, and keep all the notes for each address on the same line
 
-`python main.py --show-labels --note-level info --add-address-numbers --show-token-src --add-token-notes --use-hashtags --auto-recompile source.txt output.txt`
+`python main.py --show-labels --note-level info --add-address-numbers --show-token-src --add-token-notes --use-hashtags --auto-recompile --export-mtech source.txt output.txt`
 
 format the extra info in a computer-readable format
 
@@ -34,6 +34,7 @@ format the extra info in a computer-readable format
 - `--add-token-notes`: show notes attached to tokens in the output file. This is useful for understanding why certain errors or warnings were generated. Note that this won't do anything without `--note-level info`. Token notes are currently only generated when decimal and hexadecimal numbers are converted to binary tokens in preparation for compiling.
 - `--use-hashtags`: use `#` for 1s and `-` for 0s in the binary output, instead of `1` and `0`. This makes the binary code easier to read for humans.
 - `--auto-recompile`: automatically recompile the source file whenever it is changed. Note that this will not terminate on its own, you have to manually stop the program (e.g. with Ctrl+C).
+- `--export-mtech`: export the compiled memory map to the MTech memory mod data.json file. This allows you to load the compiled program into Scrap Mechanic using the MTech workshop mod.
 
 # How it works
 - First, main.py interperets your command arguments and reads the source file.
